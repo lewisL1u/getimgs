@@ -1,64 +1,50 @@
-const axios = require("axios");
-const cheerio = require("cheerio");
-const fs = require("fs");
-const path = require("path");
+import { getAllCWooCategories } from "./src/woo/WooCategory.js";
+import { saveSecondBingThumbnail } from "./src/BinGetImage.js";
+import { getCloverProducts,getAllCategories } from "./src/Clover/GetObjs.js";
 
-async function saveSecondBingThumbnail(query, outDir = "./images") {
-  if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
+(async () => {
+    try {
+      //const products = await getAllCloverProducts();
+      let offset = 0;
+      let limit = 100;
+      let hasMore = true;
+      //saveSecondBingThumbnail("Aji – Milk Cake", 4894375033017);
 
-  const url = `https://www.bing.com/images/search?q=${encodeURIComponent(query)}&form=HDRSC2`;
+            // 1. Fetch all categories from both platforms (you must implement these)
+      //const allCloverCategories = await getAllCategories();
+      const allWooCategories = await getAllCWooCategories(); 
 
-  const { data: html } = await axios.get(url, {
-    headers: {
-      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-    }
-  });
+      // 2. Generate the map automatically
+      const cloverToWooCategoryMap = createCategoryMapByName(allCloverCategories, allWooCategories);
 
-  const $ = cheerio.load(html);
+      // 3. Now, you can use this map when you call convertCloverToWoo
+      //const wooProduct = convertCloverToWoo(cloverProduct, cloverToWooCategoryMap);
 
-  const thumbUrls = $("a.iusc")
-    .map((i, el) => {
-      const m = $(el).attr("m");
-      if (m) {
-        try {
-          const mJson = JSON.parse(m);
-          return mJson.turl;
-        } catch (e) {
-          return null;
-        }
+      while (hasMore) {
+        let productsObj = await getCloverProducts(offset, limit);
+        hasMore = productsObj.hasMore;
+        offset += limit;
+        let products = productsObj.products;
+
+        for (const product of products) {
+          
+          // Convert Clover product to WooCommerce format
+          // const wooProduct = convertCloverToWoo(product, cloverToWooCategoryMap);
+
       }
-      return null;
-    })
-    .get()
-    .filter(Boolean); // Filter out any nulls
+    }
+      
 
-  console.log('Found thumbnail URLs:', thumbUrls);
 
-  let thumbUrl = thumbUrls[1]; // Try to get the second thumbnail
+      
 
-  if (!thumbUrl) {
-    console.log("Second thumbnail not found, falling back to the first one.");
-    thumbUrl = thumbUrls[0]; // Fallback to the first thumbnail
-  }
-
-  if (!thumbUrl) throw new Error("No thumbnails found");
-
-  // Download thumbnail
-  const imgRes = await axios.get(thumbUrl, {
-    responseType: "arraybuffer",
-    headers: { "User-Agent": "Mozilla/5.0" }
-  });
-
-  const ext = imgRes.headers["content-type"]?.includes("png") ? "png" : "jpg";
-  const filePath = path.join(outDir, `${query}.${ext}`);
-
-  fs.writeFileSync(filePath, imgRes.data);
-
-  console.log(`✅ Saved thumbnail: ${filePath}`);
-  return filePath;
-}
-
-// Example
-saveSecondBingThumbnail("白象 | White Elephant – 蟹黄面 | Crab Roe Noodles")
-  .then(console.log)
-  .catch(console.error);
+      
+      // Now you have an array of all products and categories
+      console.log('Fetched a total of:', categories.length, 'categories');
+      if (categories.length > 0) console.log('First category:', categories[0]);
+      // You can uncomment the line below to log the first product for inspection
+      // if (products.length > 0) console.log('First product:', products[0]);
+    } catch (error) {
+      console.error('Error fetching all Clover products:', error.message);
+    }
+  })();
