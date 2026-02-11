@@ -9,7 +9,7 @@ const WooCommerce = new WooCommerceRestApi({
   version: 'wc/v3'
 });
 
-const categoryMap = [];
+const categoryMap = new Map();
 
 const cfg = {
   // Woo
@@ -27,7 +27,7 @@ async function createCategory(name, id, sortOrder) {
   }
 
   let slug = extractAndFormatCategorySlug(name).toLowerCase();
-  if (!await categorySlugExists(slug)) {
+  if (!await getCategoryBySlug(slug)) {
     const data = {
       name: name,
       description: JSON.stringify({id: id, sortOrder: sortOrder, name: name}),
@@ -37,7 +37,11 @@ async function createCategory(name, id, sortOrder) {
     try {
       const response = await WooCommerce.post("products/categories", data);
       console.log("Category created successfully:", response.data);
-      return response.data;
+
+      const res = response.data;
+      const cat = {'id': res.id, 'name': res.name, 'slug': res.slug, 'description': res.description};
+      categoryMap.set(slug, cat);
+      return cat;
     } catch (error) {
       console.error("Error creating category:", error.response ? error.response.data : error);
       throw error;
@@ -64,23 +68,23 @@ async function categoryExistsByName(name) {
 }
 
 async function getCategoryBySlug(slug) {
+  if (categoryMap.has(slug)) {
+    return categoryMap.get(slug);
+  }
+
   try {
     const response = await WooCommerce.get("products/categories", {
       slug: slug.toLowerCase(),
     });
-    return response.data;
+    if (!response.data || response.data.length === 0) {
+      return null;
+    }
+    const res = response.data;
+    const cat = {'id': res.id, 'name': res.name, 'slug': res.slug, 'description': res.description};
+    categoryMap.set(slug, cat);
+    return cat;
   } catch (error) {
     console.error("Error fetching category by slug:", error.response ? error.response.data : error);
-    throw error;
-  }
-}
-
-async function categorySlugExists(slug) {
-  try {
-    const categories = await getCategoryBySlug(slug);
-    return categories.length > 0;
-  } catch (error) {
-    console.error("Error checking if category slug exists:", error);
     throw error;
   }
 }
@@ -139,32 +143,3 @@ async function getAllCWooCategories() {
 }
 
 module.exports = { createCategory,  getAllCWooCategories};
-
-
-
-// Example usage:
-// createCategory('New Category Name', 'This is a description for the new category.');
-
-// Example usage of getCategoryBySlug:
-// (async () => {
-//   try {
-//     const categories = await getCategoryBySlug('new-category-slug');
-//     if (categories.length > 0) {
-//       console.log('Found category:', categories[0]);
-//     } else {
-//       console.log('Category not found.');
-//     }
-//   } catch (error) {
-//     console.error('An error occurred.');
-//   }
-// })();
-
-// Example usage of categorySlugExists:
-// (async () => {
-//   try {
-//     const exists = await categorySlugExists('new-category-slug');
-//     console.log('Does slug exist?', exists);
-//   } catch (error) {
-//     console.error('An error occurred while checking slug existence.');
-//   }
-// })();

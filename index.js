@@ -27,7 +27,13 @@ import { getCloverProducts,getAllCategories } from "./src/Clover/GetObjs.js";
         let products = productsObj.products;
 
         for (const product of products) {
-          
+          // convert clover product to wooComerce product
+          const wooProduct = WooProductObj.convertCloverToWoo(product, cloverToWooCategoryMap);
+          // get images, upload, call saveSecondBingThumbnail
+          saveSecondBingThumbnail(product.name, product.id);
+          // save woo product to woocommerce
+          addOrUpdateWooCommerceProduct
+
           // Convert Clover product to WooCommerce format
           // const wooProduct = convertCloverToWoo(product, cloverToWooCategoryMap);
 
