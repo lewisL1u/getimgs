@@ -9,50 +9,50 @@ const WooCommerce = new WooCommerceRestApi({
   version: 'wc/v3'
 });
 
-const categoryMap = new Map();
+//const categoryMap = new Map();
 
 const cfg = {
   // Woo
-  'woo' : {
-    'site'         : process.env.WOO_SITE_URL,
-    'ck'           : process.env.WOO_CK,
-    'cs'           : process.env.WOO_CS,
-    'page_limit'   : 100
+  'woo': {
+    'site': process.env.WOO_SITE_URL,
+    'ck': process.env.WOO_CK,
+    'cs': process.env.WOO_CS,
+    'page_limit': 100
   }
 }
 
-async function createCategory(name, id, sortOrder) {
+async function createCategory(name, id, sortOrder, categoryMap) {
   if (!name) {
     name = 'misc';
   }
 
   let slug = extractAndFormatCategorySlug(name).toLowerCase();
-  if (!await getCategoryBySlug(slug)) {
-    const data = {
-      name: name,
-      description: JSON.stringify({id: id, sortOrder: sortOrder, name: name}),
-      slug: slug
-    };
-
-    try {
-      const response = await WooCommerce.post("products/categories", data);
-      console.log("Category created successfully:", response.data);
-
-      const res = response.data;
-      const cat = {'id': res.id, 'name': res.name, 'slug': res.slug, 'description': res.description};
-      categoryMap.set(slug, cat);
-      return cat;
-    } catch (error) {
-      console.error("Error creating category:", error.response ? error.response.data : error);
-      throw error;
-    }
+  if (categoryMap.has(slug)) {
+    return categoryMap(slug);
   }
 
-  if (!categoryMap[slug]) {
-    categoryMap[slug] = await getCategoryBySlug(slug);
+  if (await getCategoryBySlug(slug, categoryMap)) {
+    return categoryMap[slug];
   }
 
-  return categoryMap[slug];
+  const data = {
+    name: name,
+    description: JSON.stringify({ id: id, sortOrder: sortOrder, name: name }),
+    slug: slug
+  };
+
+  try {
+    const response = await WooCommerce.post("products/categories", data);
+    console.log("Category created successfully:", response.data);
+
+    const res = response.data;
+    const cat = { 'id': res.id, 'name': res.name, 'slug': res.slug, 'description': res.description };
+    categoryMap.set(slug, cat);
+    return cat;
+  } catch (error) {
+    console.error("Error creating category:", error.response ? error.response.data : error);
+    throw error;
+  }
 }
 
 async function categoryExistsByName(name) {
@@ -67,7 +67,7 @@ async function categoryExistsByName(name) {
   }
 }
 
-async function getCategoryBySlug(slug) {
+async function getCategoryBySlug(slug, categoryMap) {
   if (categoryMap.has(slug)) {
     return categoryMap.get(slug);
   }
@@ -80,7 +80,7 @@ async function getCategoryBySlug(slug) {
       return null;
     }
     const res = response.data;
-    const cat = {'id': res.id, 'name': res.name, 'slug': res.slug, 'description': res.description};
+    const cat = { 'id': res.id, 'name': res.name, 'slug': res.slug, 'description': res.description };
     categoryMap.set(slug, cat);
     return cat;
   } catch (error) {
@@ -116,7 +116,7 @@ async function getAllCWooCategories() {
       }
 
       const categories = await response.json();
-      
+
       if (categories.length > 0) {
         for (const category of categories) {
           allCategories[category.slug] = category;
@@ -138,8 +138,8 @@ async function getAllCWooCategories() {
       throw error;
     }
   }
-  
+
   return allCategories;
 }
 
-module.exports = { createCategory,  getAllCWooCategories};
+module.exports = { createCategory, getAllCWooCategories };

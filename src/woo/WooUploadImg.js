@@ -20,7 +20,7 @@ async function uploadImageToWoo(imagePath, imageName, consumerKey, consumerSecre
             data,
             {
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'image/jpeg'
                 },
                 auth: {
                     username: consumerKey,
