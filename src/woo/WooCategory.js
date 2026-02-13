@@ -1,22 +1,24 @@
+// Use createRequire to import a CJS module in an ESM file
+import { createRequire } from "module";
+const require = createRequire(import.meta.url);
 const WooCommerceRestApi = require("@woocommerce/woocommerce-rest-api").default;
+
 import dotenv from 'dotenv';
 dotenv.config();
 
 const WooCommerce = new WooCommerceRestApi({
-  url: process.env.WOO_SITE_URL, // Replace with your WordPress URL
-  consumerKey: process.env.WOO_CK, // Replace with your Consumer Key
-  consumerSecret: process.env.WOO_CS, // Replace with your Consumer Secret
+  url: process.env.WOO_API_URL,
+  consumerKey: process.env.WOO_CONSUMER_KEY,
+  consumerSecret: process.env.WOO_CONSUMER_SECRET,
   version: 'wc/v3'
 });
-
-//const categoryMap = new Map();
 
 const cfg = {
   // Woo
   'woo': {
-    'site': process.env.WOO_SITE_URL,
-    'ck': process.env.WOO_CK,
-    'cs': process.env.WOO_CS,
+    'site': process.env.WOO_API_URL,
+    'ck': process.env.WOO_CONSUMER_KEY,
+    'cs': process.env.WOO_CONSUMER_SECRET,
     'page_limit': 100
   }
 }
@@ -28,11 +30,11 @@ async function createCategory(name, id, sortOrder, categoryMap) {
 
   let slug = extractAndFormatCategorySlug(name).toLowerCase();
   if (categoryMap.has(slug)) {
-    return categoryMap(slug);
+    return categoryMap.get(slug);
   }
 
   if (await getCategoryBySlug(slug, categoryMap)) {
-    return categoryMap[slug];
+    return categoryMap.get(slug);
   }
 
   const data = {
@@ -55,18 +57,6 @@ async function createCategory(name, id, sortOrder, categoryMap) {
   }
 }
 
-async function categoryExistsByName(name) {
-  try {
-    const response = await WooCommerce.get("products/categories", {
-      search: name
-    });
-    return response.data.some(category => category.name === name);
-  } catch (error) {
-    console.error("Error checking category existence:", error.response ? error.response.data : error);
-    throw error;
-  }
-}
-
 async function getCategoryBySlug(slug, categoryMap) {
   if (categoryMap.has(slug)) {
     return categoryMap.get(slug);
@@ -79,7 +69,7 @@ async function getCategoryBySlug(slug, categoryMap) {
     if (!response.data || response.data.length === 0) {
       return null;
     }
-    const res = response.data;
+    const res = response.data[0];
     const cat = { 'id': res.id, 'name': res.name, 'slug': res.slug, 'description': res.description };
     categoryMap.set(slug, cat);
     return cat;
@@ -142,4 +132,5 @@ async function getAllCWooCategories() {
   return allCategories;
 }
 
-module.exports = { createCategory, getAllCWooCategories };
+// Export functions for use in other ESM files
+export { createCategory, getAllCWooCategories };

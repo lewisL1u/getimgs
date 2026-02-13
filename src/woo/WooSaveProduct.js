@@ -1,3 +1,9 @@
+import { createRequire } from 'module';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+const require = createRequire(import.meta.url);
 const WooCommerceRestApi = require('@woocommerce/woocommerce-rest-api').default;
 
 const wooApi = new WooCommerceRestApi({
@@ -36,4 +42,4 @@ async function addOrUpdateWooCommerceProduct(productData) {
   }
 }
 
-module.exports = { addOrUpdateWooCommerceProduct };
+export { addOrUpdateWooCommerceProduct };

@@ -1,6 +1,6 @@
-const axios = require('axios');
-const fs = require('fs');
-const path = require('path');
+import axios from 'axios';
+import fs from 'fs';
+import path from 'path';
 
 async function uploadImageToWoo(imagePath, imageName, consumerKey, consumerSecret, wooCommerceUrl) {
     try {
@@ -52,4 +52,4 @@ async function uploadImageToWoo(imagePath, imageName, consumerKey, consumerSecre
 //         console.error('Failed to upload image:', err);
 //     });
 
-module.exports = uploadImageToWoo;
+export { uploadImageToWoo };
