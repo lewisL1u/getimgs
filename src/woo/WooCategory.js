@@ -63,9 +63,7 @@ async function getCategoryBySlug(slug, categoryMap) {
   }
 
   try {
-    const response = await WooCommerce.get("products/categories", {
-      slug: slug.toLowerCase(),
-    });
+    const response = await WooCommerce.get("products/categories?slug=" + slug.toLowerCase());
     if (!response.data || response.data.length === 0) {
       return null;
     }

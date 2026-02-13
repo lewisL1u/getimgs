@@ -19,7 +19,7 @@ async function addOrUpdateWooCommerceProduct(productData) {
     // Check if product exists by SKU
     let existingProduct = null;
     if (productData.sku) {
-      const { data: products } = await wooApi.get('products', { sku: productData.sku });
+      const { data: products } = await wooApi.get('products?sku=' + productData.sku);
       if (products.length > 0) {
         existingProduct = products[0];
       }
@@ -28,6 +28,7 @@ async function addOrUpdateWooCommerceProduct(productData) {
     if (existingProduct) {
       // Update existing product
       console.log(`Updating product with SKU: ${productData.sku}, ID: ${existingProduct.id}`);
+      productData.id = existingProduct.id;
       const { data } = await wooApi.put(`products/${existingProduct.id}`, productData);
       return { action: 'updated', product: data };
     } else {

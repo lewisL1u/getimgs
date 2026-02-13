@@ -1,4 +1,4 @@
-import { createCategory } from "./src/woo/WooCategory.js";
+import { createCategory, getAllCWooCategories } from "./src/woo/WooCategory.js";
 import { saveSecondBingThumbnail } from "./src/BinGetImage.js";
 import { getCloverProducts } from "./src/Clover/GetObjs.js";
 import { addOrUpdateWooCommerceProduct } from "./src/woo/WooSaveProduct.js";
@@ -7,7 +7,7 @@ import { uploadImageToWoo } from "./src/woo/WooUploadImg.js";
 
 (async () => {
   try {
-    let offset = 0;
+    let offset = 100;
     let limit = 100;
     let hasMore = true;
     const categoryMap = new Map();
@@ -24,10 +24,10 @@ import { uploadImageToWoo } from "./src/woo/WooUploadImg.js";
           const wooProduct = WooProductObj.convertCloverToWoo(product, categoryMap);
           // get images, upload, call saveSecondBingThumbnail
           const imgPath = await saveSecondBingThumbnail(product.name, product.code);
-          const imgInfo = await uploadImageToWoo(imgPath, product.code, process.env.WOO_CK, process.env.WOO_CS, process.env.WOO_SITE_URL);
+          const imgInfo = await uploadImageToWoo(imgPath, product.code, process.env.WORDPRESS_USERNAME, process.env.WORDPRESS_PASSWORD, process.env.WOO_API_URL);
 
           wooProduct.images = [{
-            src: imgInfo.src,
+            src: imgInfo.link,
             id: imgInfo.id
           }];
 

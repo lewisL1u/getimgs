@@ -8,7 +8,7 @@ const cfg = {
         'env'        : 'prod', // 'sandbox' | 'prod'
         'merchantId' : process.env.CLOVER_MERCHANT_ID,
         'token'      : process.env.CLOVER_TOKEN,
-        'page_limit' : 500,       // 100–1000 typically supported
+        'page_limit' : 100,       // 100–1000 typically supported
         'total_number' : 5000
     },
     // Woo
@@ -55,20 +55,12 @@ async function getCloverProducts(offset = 0, limit = cfg.clover.page_limit) {
       }
 
       const data = await response.json();
-      const products = data.elements || [];
-      
-      // if (products.length > 0) {
-      //   allProducts = allProducts.concat(products);
-      // }
+      products = data.elements || [];
       
       // If the number of products returned is less than the limit, we've reached the last page.
       if (products.length < limit) {
         hasMore = false;
       }
-      // } else {
-      //   // Otherwise, prepare to fetch the next page by increasing the offset.
-      //   offset += limit;
-      // }
     } catch (error) {
       console.error(`Failed to fetch page of Clover products at offset ${offset}:`, error);
       hasMore = false; // Stop the loop on error to avoid returning incomplete data.

@@ -136,7 +136,7 @@ class WooProductObj {
       // Stock management
       manage_stock: cloverProduct.autoManage || false,
       stock_quantity: cloverProduct.stockCount,
-      stock_status: cloverProduct.stockCount > 0 ? 'instock' : 'outofstock',
+      stock_status: cloverProduct.available ? 'instock' : 'outofstock',
 
       categories: wooCategories,
 

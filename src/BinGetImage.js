@@ -100,7 +100,7 @@ async function downloadToFile(url, outDir, filenameBase) {
 async function saveSecondBingThumbnail(query, sku) {
   const thumbUrl = await getThumbUrlWithRetry({
     query,
-    index0Based: 1, // second thumbnail
+    index0Based: 0, // second thumbnail
   });
 
   const outDir = path.resolve("./images");
