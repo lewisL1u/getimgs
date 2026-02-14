@@ -39,7 +39,7 @@ async function createCategory(name, id, sortOrder, categoryMap) {
 
   const data = {
     name: name,
-    description: JSON.stringify({ id: id, sortOrder: sortOrder, name: name }),
+    description: `{ id: ${id}, sortOrder: ${sortOrder}, name: ${name} }`,
     slug: slug
   };
 

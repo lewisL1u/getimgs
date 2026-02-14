@@ -31,6 +31,7 @@ const ACCESS_TOKEN = cfg.clover.token;
  * @returns {Promise<Array>} A promise that resolves to an array of all product items.
  */
 async function getCloverProducts(offset = 0, limit = cfg.clover.page_limit) {
+  console.log(`Fetching Clover products with offset ${offset} and limit ${limit}`);
   let products = [];
   // let offset = 0;
   let hasMore = true;

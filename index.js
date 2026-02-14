@@ -7,7 +7,7 @@ import { uploadImageToWoo } from "./src/woo/WooUploadImg.js";
 
 (async () => {
   try {
-    let offset = 100;
+    let offset = 1100;
     let limit = 100;
     let hasMore = true;
     const categoryMap = new Map();

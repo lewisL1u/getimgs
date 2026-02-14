@@ -12,7 +12,7 @@ class WooProductObj {
     this.shortDescription = data.short_description || '';
     this.sku = data.sku || '';
     this.price = data.price || '';
-    this.regularPrice = data.price || '';
+    this.regular_price = data.price || '';
     this.salePrice = data.sale_price || '';
     this.dateOnSaleFrom = data.date_on_sale_from ? new Date(data.date_on_sale_from) : null;
     this.dateOnSaleTo = data.date_on_sale_to ? new Date(data.date_on_sale_to) : null;
